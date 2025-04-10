@@ -7,28 +7,28 @@ local EmoteTab = Window:Tab("Emote")
 
 -- Toggles + Sliders for Movement
 MovementTab:Toggle("Bhop", false, function(state)
-    getgenv().Bhop = state
+    _G.Bhop = state
 end)
 
 MovementTab:Toggle("Infinite Sprint Slide", false, function(state)
-    getgenv().Slide = state
+    _G.Slide = state
 end)
 
-MovementTab:Slider("Speed", 16, 200, 100, function(val)
-    getgenv().Speed = val
+MovementTab:Slider("Speed", 16, 5000, 100, function(val)
+    _G.Speed = val
 end)
 
-MovementTab:Slider("Strafe Acceleration", 100, 600, 120, function(val)
-    getgenv().StrafeAccel = val
+MovementTab:Slider("Strafe Acceleration", 100, 5000, 120, function(val)
+    _G.StrafeAccel = val
 end)
 
 -- Toggles + Sliders for Emotes
-EmoteTab:Slider("Emote Dash Speed", 10, 200, 60, function(val)
-    getgenv().EmoteDash = val
+EmoteTab:Slider("Emote Dash Speed", 10, 5000, 60, function(val)
+    _G.EmoteDash = val
 end)
 
-EmoteTab:Slider("Emote Bounce", 0, 100, 20, function(val)
-    getgenv().EmoteBounce = val
+EmoteTab:Slider("Emote Bounce", 0, 5000, 20, function(val)
+    _G.EmoteBounce = val
 end)
 
 -- Looping actions (example)
@@ -37,20 +37,32 @@ game:GetService("RunService").Heartbeat:Connect(function()
         local plr = game.Players.LocalPlayer
         if plr.Character and plr.Character:FindFirstChild("Humanoid") then
             local hum = plr.Character.Humanoid
+            local hrp = plr.Character:FindFirstChild("HumanoidRootPart")
 
-            if getgenv().Speed then
-                hum.WalkSpeed = getgenv().Speed
+            -- Set WalkSpeed if Speed is set
+            if _G.Speed then
+                hum.WalkSpeed = _G.Speed
             end
 
-            if getgenv().Bhop then
+            -- Bhop functionality
+            if _G.Bhop then
                 if hum.FloorMaterial ~= Enum.Material.Air then
                     hum:ChangeState("Jumping")
                 end
             end
 
-            if getgenv().Slide then
+            -- Infinite Sprint Slide
+            if _G.Slide then
                 hum.UseJumpPower = false
                 hum.JumpPower = 0
+            end
+
+            -- Emote Bounce functionality
+            if _G.EmoteBounce > 0 and hrp then
+                local bounceIntensity = _G.EmoteBounce / 10  -- Adjust the scale of the bounce
+                if hum:GetState() == Enum.HumanoidStateType.Physics then
+                    hrp.Velocity = Vector3.new(hrp.Velocity.X, bounceIntensity, hrp.Velocity.Z)
+                end
             end
         end
     end)
